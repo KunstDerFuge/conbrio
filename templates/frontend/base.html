@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>conbrio</title>
+    {% load static %}
+
+    {# Bootstrap #}
+    <link href="{% static "/css/bootstrap.min.css" %}" rel="stylesheet" crossorigin="anonymous">
+
+    {% block description %}
+        <meta name="description"
+              content="conbrio description">
+    {% endblock %}
+
+    <meta name="twitter:image:src" content=""/>
+    <meta name="twitter:site" content=""/>
+    <meta name="twitter:card" content="summary_large_image"/>
+
+    {% block twitter_meta %}
+        <meta name="twitter:title" content=""/>
+        <meta name="twitter:description" content=""/>
+    {% endblock %}
+
+    <meta property="og:image" content=""/>
+    <meta property="og:image:alt" content=""/>
+    <meta property="og:image:width" content="1200"/>
+    <meta property="og:image:height" content="600"/>
+    <meta property="og:site_name" content=""/>
+    <meta property="og:url" content=""/>
+
+    {% block og_meta %}
+        <meta property="og:title" content=""/>
+        <meta property="og:description" content=""/>
+        <meta property="og:type" content="website"/>
+    {% endblock %}
+
+    {% block head_extras %}
+    {% endblock %}
+</head>
+<body style="background-color:#EEEEEE; font-size: 0.9em; max-width: 100%; overflow-x: hidden">
+<nav class="navbar shadow navbar-expand-sm navbar-dark bg-dark" style="z-index: 1">
+    <div class="container">
+        <a class="navbar-brand" href="/">conbrio</a>
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+            <li><a href="/" class="nav-link px-2 text-secondary">Home</a></li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-white" href="/practice" id="navbarDarkDropdownMenuLink"
+                   role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Practice
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
+                    <li><a class="dropdown-item" href="/practice/scales">Scales & Arpeggios</a></li>
+                    <li><a class="dropdown-item" href="/practice/exercises">Exercises</a></li>
+                    <li><a class="dropdown-item" href="/practice/reading">Sight Reading</a></li>
+                </ul>
+            </li>
+
+            <li><a href="/metronome" class="nav-link px-2 text-white">Metronome</a></li>
+            <li><a href="/about" class="nav-link px-2 text-white">About</a></li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+{# Bootstrap JS #}
+<script src="{% static "/js/bootstrap.bundle.min.js" %}" crossorigin="anonymous"></script>
+</body>

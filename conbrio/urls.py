@@ -22,6 +22,7 @@ import frontend.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/exercise/', api.views.get_random_note),
+    path('api/scale/', api.views.generate_scale),
     path('api/chromatic/', api.views.get_all_chromatic_notes),
     re_path('practice/*', frontend.views.app),
     path('', frontend.views.home)

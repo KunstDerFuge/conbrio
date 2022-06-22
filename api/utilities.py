@@ -21,3 +21,20 @@ def generate_random_note(min_note: str, max_note: str, accidentals: bool,
 
 def replace_fancy_accidentals(fancy: str) -> str:
     return fancy.replace('♭', 'b').replace('♯', '#')
+
+
+def create_grand_staff(key_signature: key.KeySignature or None) -> tuple:
+    # Create grand staff
+    left_hand = stream.PartStaff()
+    right_hand = stream.PartStaff()
+    grand_staff = layout.StaffGroup([right_hand, left_hand])
+    s = stream.Score([right_hand, left_hand, grand_staff])
+
+    left_hand.insert(clef.BassClef())
+    right_hand.insert(clef.TrebleClef())
+
+    if key_signature:
+        left_hand.insert(0, key_signature)
+        right_hand.insert(0, key_signature)
+
+    return left_hand, right_hand, grand_staff, s

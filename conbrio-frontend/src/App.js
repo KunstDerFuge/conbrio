@@ -8,7 +8,7 @@ import {FormControl, InputLabel, MenuItem, Select} from '@mui/material'
 import Scales from './Scales'
 
 function App() {
-  const [score, setScore] = useState(null)
+  const [score, setScore] = useState('')
   const [toolkit, setToolkit] = useState(null)
   const [midiDevices, setMidiDevices] = useState([])
   const [midiOutputDevices, setMidiOutputDevices] = useState([])

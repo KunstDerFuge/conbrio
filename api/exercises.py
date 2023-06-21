@@ -144,8 +144,8 @@ class Scale(Exercise):
         for octave in range(self.octaves):
             top_note.transpose('p8', inPlace=True)
 
-        asc = scale.DIRECTION_ASCENDING
-        desc = scale.DIRECTION_DESCENDING
+        asc = scale.Direction.ASCENDING
+        desc = scale.Direction.DESCENDING
         rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)]
         rh_notes.extend(
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])

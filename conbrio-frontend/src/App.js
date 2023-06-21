@@ -1,9 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react'
 import Module from 'verovio/wasm/verovio-toolkit-wasm-hum.js'
 import {VerovioToolkit} from 'verovio'
-import axios from 'axios'
 import {WebMidi} from 'webmidi'
-import ReadingRandomNote from './ReadingRandomNote'
 import {FormControl, InputLabel, MenuItem, Select} from '@mui/material'
 import Scales from './Scales'
 
@@ -42,7 +40,8 @@ function App() {
         header: 'none',
         footer: 'none',
         adjustPageHeight: true,
-        adjustPageWidth: true,
+        adjustPageWidth: false,
+        breaks: 'encoded',
       })
       console.log(verovioToolkit.getVersion())
       console.log(verovioToolkit.getOptions())

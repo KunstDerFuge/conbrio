@@ -1,7 +1,6 @@
-import random
+from django.http import JsonResponse
 
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from .exercises import Scale, Arpeggio
 from .utilities import *
 from music21 import stream, layout, note, key, clef, pitch, musicxml
 
@@ -47,60 +46,120 @@ def get_all_chromatic_notes(request):
 def generate_scale(request) -> JsonResponse:
     tonic = request.GET.get('tonic', 'ab')
     quality = request.GET.get('quality', 'melodic')
-    print(f'Generating {tonic} {quality} scale...')
+    style = request.GET.get('style', 'ABRSM')
+    print(f'Generating {tonic} {quality} {style} scale...')
 
-    if quality == 'major':
-        k = key.Key(tonic.upper())
-        scl = k.getScale('major')
-    elif quality == 'minor':
-        k = key.Key(tonic.lower())
-        scl = k.getScale('minor')
-    elif quality == 'melodic':
-        k = key.Key(tonic.lower())
-        scl = scale.MelodicMinorScale(tonic)
-    elif quality == 'harmonic':
-        k = key.Key(tonic.lower())
-        scl = scale.HarmonicMinorScale(tonic)
+    # _scale = Scale(tonic, quality, octaves=2, style=style)
+    _scale = Arpeggio(tonic, quality, octaves=2,
+                      tempo=tempo.MetronomeMark(number=110, referent=duration.Duration(2)), style=style)
+
+    return JsonResponse({'xml': _scale.render()})
+
+
+def generate_chord_exercise(request) -> JsonResponse:
+    def common_tone_chords_from_note(_note: note.Note) -> [chord.Chord]:
+        # Rachmaninoff common tone chord series
+        chords = [
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('p5')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('p5')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('m6')]),
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('m6')]),
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('p4'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('p4'), _note.transpose('m6')]),
+        ]
+
+        # If G or Ab, transpose down an octave for 7th chord series
+        if _note.pitch.name in ['G', 'Ab']:
+            _note = _note.transpose('-p8')
+
+        chords += [
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('p5'), _note.transpose('m7')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('d5'), _note.transpose('m6')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('p4'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('M2'), _note.transpose('a4'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('a2'), _note.transpose('a4'), _note.transpose('M6')]),
+        ]
+
+        return chords
+
+    def key_from_chord(_chord: chord.Chord) -> key.Key():
+        quality = _chord.quality
+        if quality == 'augmented':
+            quality = 'major'
+        elif quality == 'diminished':
+            return key.Key(_chord.sortAscending()[0].transpose('p5').name, 'major')
+        elif _chord.seventh is not None:
+            # Dominant
+            return key.Key(_chord.root().transpose('p4'), 'major')
+
+        return key.Key(_chord.root().name, quality)
+
+    def exercise_from_chord(_chord: chord.Chord) -> [chord.Chord]:
+        chords = [_chord]
+        chord_notes = list(_chord.sortAscending().pitches)
+        num_chord_notes = len(_chord)
+        for inversion in range(num_chord_notes):
+            chord_notes[0] = chord_notes[0].transpose('p8')
+            c = chord.Chord(chord_notes)
+            chord_notes = list(c.sortAscending().pitches)
+            chords.append(c)
+
+        for inversion in range(num_chord_notes, 0, -1):
+            chord_notes[-1] = chord_notes[-1].transpose('-p8')
+            c = chord.Chord(chord_notes)
+            chord_notes = list(c.sortAscending().pitches)
+            chords.append(c)
+
+        for c in chords:
+            c.duration = duration.Duration(2)
+            c.sortAscending(inPlace=True)
+            lh_fingering = [
+                articulations.Fingering(5),
+                articulations.Fingering(3),
+                articulations.Fingering(1),
+            ]
+
+            rh_fingering = [
+                articulations.Fingering(1),
+                articulations.Fingering(3),
+                articulations.Fingering(5)
+            ]
+
+            fingering = lh_fingering
+            fingering.extend(rh_fingering)
+
+            for finger in lh_fingering:
+                finger.placement = 'below'
+                finger.alternate = True
+
+            for finger in rh_fingering:
+                finger.placement = 'above'
+                finger.substitution = True
+
+            c.articulations.extend(fingering)
+        chords[-1].duration = duration.Duration(4)
+        return chords
+
+    tonic = request.GET.get('tonic', 'ab')
+    # Re-capitalize tonic as major key, i.e. ab -> Ab, g -> G
+    key_name = tonic[0].upper() + tonic[1:]
+    _key = key.Key(key_name)
+    s = stream.Stream()
+    s.insert(0, clef.TrebleClef())
+    s.insert(0, key.KeySignature(_key.sharps))
+    if tonic in ['A', 'B', 'Bb']:
+        tonic += '3'
     else:
-        raise ('Invalid key quality passed to generate_scale:', quality)
+        tonic += '4'
 
-    left_hand, right_hand, grand_staff, s = create_grand_staff(key.KeySignature(k.sharps))
-    time_sig = meter.TimeSignature('7/4')
-    time_sig.beamSequence.partition(7)
-    left_hand.insert(time_sig)
-    right_hand.insert(time_sig)
-    sixteenth = duration.Duration(0.25)
+    for _chord in common_tone_chords_from_note(note.Note(tonic)):
+        s.append(key_from_chord(_chord))
+        s.append([c for c in exercise_from_chord(_chord)])
+        s.append(layout.SystemLayout(isNew=True))
 
-    # Spell scale
-    bottom_note = scl.pitchFromDegree(1)
-    if bottom_note >= pitch.Pitch('F4'):
-        bottom_note = bottom_note.transpose('-p8')
-    top_note = bottom_note.transpose('p8').transpose('p8')
-    asc = scale.DIRECTION_ASCENDING
-    desc = scale.DIRECTION_DESCENDING
-    rh_notes = [note.Note(p, duration=sixteenth) for p in scl.getPitches(bottom_note, top_note, asc)]
-    rh_notes.extend(
-        [note.Note(p, duration=sixteenth) for p in scl.getPitches(bottom_note, top_note, desc)][1:])
-    rh_notes[-1].duration = duration.Duration(1)
-    lh_notes = [n.transpose('-p8') for n in rh_notes]
-    right_hand.append(rh_notes)
-    left_hand.append(lh_notes)
-    p = bottom_note
-
-    new_clef_threshold_asc = pitch.Pitch('F4')
-    new_clef_threshold_desc = pitch.Pitch('Bb3')
-    inserted_treble = False
-    for n in left_hand.notes:
-        if not inserted_treble and n.pitch > new_clef_threshold_asc:
-            left_hand.insert(int(n.offset), clef.TrebleClef())
-            inserted_treble = True
-        if inserted_treble and n.pitch < new_clef_threshold_desc:
-            left_hand.insert(int(n.offset), clef.BassClef())
-            break
-
-    for part in left_hand, right_hand:
-        part.makeNotation(inPlace=True)  # makes measures
+    s.definesExplicitSystemBreaks = True
+    s.makeNotation(inPlace=True)
 
     parser = musicxml.m21ToXml.GeneralObjectExporter(s)
-    print('Done generating scale!')
     return JsonResponse({'xml': parser.parse().decode('utf-8')})

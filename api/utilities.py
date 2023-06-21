@@ -38,3 +38,7 @@ def create_grand_staff(key_signature: key.KeySignature or None) -> tuple:
         right_hand.insert(0, key_signature)
 
     return left_hand, right_hand, grand_staff, s
+
+
+def chord_from_key(k: key.Key, *degrees):
+    return chord.Chord([k.pitchFromDegree(d) for d in degrees])

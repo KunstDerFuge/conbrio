@@ -83,7 +83,7 @@ def generate_chord_exercise(request) -> JsonResponse:
 
         return chords
 
-    def key_from_chord(_chord: chord.Chord) -> key.Key():
+    def key_from_chord(_chord: chord.Chord) -> key.Key:
         quality = _chord.quality
         if quality == 'augmented':
             quality = 'major'
@@ -95,7 +95,7 @@ def generate_chord_exercise(request) -> JsonResponse:
 
         return key.Key(_chord.root().name, quality)
 
-    def exercise_from_chord(_chord: chord.Chord) -> [chord.Chord]:
+    def exercise_from_chord(_chord: chord.Chord) -> list[chord.Chord]:
         chords = [_chord]
         chord_notes = list(_chord.sortAscending().pitches)
         num_chord_notes = len(_chord)

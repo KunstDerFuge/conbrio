@@ -84,6 +84,14 @@ class Exercise:
                 s.insert(do_quantize(n.offset), clef.BassClef())
                 break
 
+    def get_notes_per_minute(self):
+        if not self.tempo or not self.duration:
+            return None
+
+        bpm = self.tempo.getQuarterBPM()
+        notes_per_beat = 1 / self.duration.quarterLength
+        return bpm * notes_per_beat
+
     def render(self):
         if self.staff == 'grand':
             for part in self.left_hand, self.right_hand:

@@ -2,25 +2,49 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
-
-
-class Exercise(models.Model):
-    pass
-
-
-class Scale(Exercise):
-    scale = models.CharField(6)
-
-
-class Arpeggio(Exercise):
-    chord = models.CharField(6)
-
-
-class ChordExercise(Exercise):
-    chord = models.CharField(6)
+from django.utils.translation import gettext_lazy as _
 
 
 class ExerciseScore(models.Model):
+
+    class ExerciseType(models.TextChoices):
+        SCALE = 'scale', _('Scale')
+        ARPEGGIO = 'arpeggio', _('Arpeggio')
+        CHORD = 'chord', _('Chord')
+
+    class Tonic(models.TextChoices):
+        C = 'C'
+        Db = 'Db'
+        D = 'D'
+        Eb = 'Eb'
+        E = 'E'
+        F = 'F'
+        Fs = 'F#'
+        G = 'G'
+        Ab = 'Ab'
+        A = 'A'
+        Bb = 'Bb'
+        B = 'B'
+
+    class Mode(models.TextChoices):
+        MAJOR = 'major', _('Major')
+        MINOR = 'minor', _('minor')
+        MIN_MEL = 'melod', _('melodic minor')
+        MIN_HARM = 'harm', _('harmonic minor')
+        CHROM = 'chrom', _('chromatic')
+        WHOLE = 'whole', _('whole tone')
+
+    class Inversion(models.TextChoices):
+        ROOT = '0', _('root position')
+        FIRST = '1', _('first inversion')
+        SECOND = '2', _('second inversion')
+        THIRD = '3', _('third inversion')
+
+    type = models.CharField(12, choices=ExerciseType.choices)
+    tonic = models.CharField(4, choices=Tonic.choices)
+    mode = models.CharField(8, choices=Mode.choices)
+    inversion = models.CharField(1, choices=Inversion.choices, null=True, blank=True)
+
     accuracy = models.FloatField()
     notes_per_minute = models.FloatField()
 

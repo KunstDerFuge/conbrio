@@ -40,10 +40,20 @@ class ExerciseScore(models.Model):
         SECOND = '2', _('second inversion')
         THIRD = '3', _('third inversion')
 
+    class Interval(models.TextChoices):
+        THIRD = '3rd', _('separated by a 3rd')
+        SIXTH = '6th', _('separated by a 6th')
+
+    class Motion(models.TextChoices):
+        SIMILAR = 'sim', _('similar motion')
+        CONTRARY = 'cont', _('contrary motion')
+
     type = models.CharField(12, choices=ExerciseType.choices)
     tonic = models.CharField(4, choices=Tonic.choices)
     mode = models.CharField(8, choices=Mode.choices)
     inversion = models.CharField(1, choices=Inversion.choices, null=True, blank=True)
+    interval = models.CharField(1, choices=Interval.choices, null=True, blank=True)
+    motion = models.CharField(1, choices=Motion.choices, default=Motion.SIMILAR)
 
     accuracy = models.FloatField()
     notes_per_minute = models.FloatField()

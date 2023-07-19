@@ -118,7 +118,29 @@ class Exercise:
 
         bpm = self.tempo.getQuarterBPM()
         notes_per_beat = 1 / self.duration.quarterLength
-        return bpm * notes_per_beat
+        return round(bpm * notes_per_beat)
+
+    def get_ABRSM_level_from_rubric(self, rubric: dict[int, int]) -> int:
+        npm = self.get_notes_per_minute()
+
+        if npm >= rubric[8]:
+            return 8
+        elif npm >= rubric[7]:
+            return 7
+        elif npm >= rubric[6]:
+            return 6
+        elif npm >= rubric[5]:
+            return 5
+        elif npm >= rubric[4]:
+            return 4
+        elif npm >= rubric[3]:
+            return 3
+        elif npm >= rubric[2]:
+            return 2
+        elif npm >= rubric[1]:
+            return 1
+        else:
+            return 0
 
     def render(self):
         if self.staff == 'grand':
@@ -273,6 +295,20 @@ class Scale(Exercise):
         fingering = ScaleFingering(self, detail=detail)
         fingering.apply()
 
+    def get_ABRSM_level(self) -> int:
+        # Source: ABRSM 2023-2024 piano syllabus grade 8
+        rubric = {
+            8: 352,
+            7: 320,
+            6: 288,
+            5: 240,
+            4: 200,
+            3: 160,
+            2: 132,
+            1: 120
+        }
+        return self.get_ABRSM_level_from_rubric(rubric)
+
     def render(self):
         quantize = 1
         if self.style == 'ABRSM':
@@ -374,6 +410,21 @@ class Arpeggio(Exercise):
 
         self.right_hand.append(rh_notes)
         self.left_hand.append(lh_notes)
+
+    def get_ABRSM_level(self) -> int:
+        npm = self.get_notes_per_minute()
+        # Source: ABRSM 2023-2024 piano syllabus grade 8
+        rubric = {
+            8: 264,
+            7: 224,
+            6: 200,
+            5: 176,
+            4: 160,
+            3: 144,
+            2: 126,
+            1: 106
+        }
+        return self.get_ABRSM_level_from_rubric(rubric)
 
     def render(self):
         if self.tonic in ['A', 'Ab']:

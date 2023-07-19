@@ -130,7 +130,7 @@ class Scale(Exercise):
         super().__init__(tonic, quality, note_duration, octaves, separated_by, key_sig, tempo, articulation,
                          staff='grand')
 
-        if self.style == 'Cooke':
+        if self.style in {'Cooke', 'grand', 'Jonas'}:
             time_sig = meter.TimeSignature('7/4')
             time_sig.beamSequence.partition(7)
             time_sig.setDisplay(None)
@@ -144,32 +144,35 @@ class Scale(Exercise):
         self.right_hand.insert(time_sig)
 
         # Spell scale
-        bottom_note = self.scale.pitchFromDegree(1)
-        if bottom_note >= pitch.Pitch('F4'):
-            bottom_note = bottom_note.transpose('-p8')
-
-        top_note = deepcopy(bottom_note)
-        for octave in range(self.octaves):
-            top_note.transpose('p8', inPlace=True)
-
-        asc = scale.Direction.ASCENDING
-        desc = scale.Direction.DESCENDING
-        rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)]
-        rh_notes.extend(
-            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
-        rh_notes[-1].duration = duration.Duration(1)
-
-        if not self.contrary:
-            lh_notes = [deepcopy(n).transpose(self.separated_by) for n in rh_notes]
+        if self.style == 'grand' or self.style == 'Jonas':
+            lh_notes, rh_notes = self.spell_grand_scale()
         else:
-            lh_top = bottom_note
-            lh_bottom = deepcopy(bottom_note)
+            bottom_note = self.scale.pitchFromDegree(1)
+            if bottom_note >= pitch.Pitch('F4'):
+                bottom_note = bottom_note.transpose('-p8')
+
+            top_note = deepcopy(bottom_note)
             for octave in range(self.octaves):
-                lh_bottom.transpose('-p8', inPlace=True)
-            lh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(lh_bottom, lh_top, desc)]
-            lh_notes.extend(
-                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(lh_bottom, lh_top, asc)][1:])
-            lh_notes[-1].duration = duration.Duration(1)
+                top_note.transpose('p8', inPlace=True)
+
+            asc = scale.Direction.ASCENDING
+            desc = scale.Direction.DESCENDING
+            rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)]
+            rh_notes.extend(
+                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
+            rh_notes[-1].duration = duration.Duration(1)
+
+            if not self.contrary:
+                lh_notes = [deepcopy(n).transpose(self.separated_by) for n in rh_notes]
+            else:
+                lh_top = bottom_note
+                lh_bottom = deepcopy(bottom_note)
+                for octave in range(self.octaves):
+                    lh_bottom.transpose('-p8', inPlace=True)
+                lh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(lh_bottom, lh_top, desc)]
+                lh_notes.extend(
+                    [note.Note(p, duration=self.duration) for p in self.scale.getPitches(lh_bottom, lh_top, asc)][1:])
+                lh_notes[-1].duration = duration.Duration(1)
 
         if self.articulation:
             for n in lh_notes:
@@ -179,6 +182,64 @@ class Scale(Exercise):
 
         self.right_hand.append(rh_notes)
         self.left_hand.append(lh_notes)
+
+    def spell_grand_scale(self):
+        bottom_note = self.scale.pitchFromDegree(1)
+        # for octave in range(1):
+        #     bottom_note.transpose('-p8', inPlace=True)
+        if bottom_note >= pitch.Pitch('F2'):
+            bottom_note = bottom_note.transpose('-p8')
+
+        top_note = deepcopy(bottom_note)
+        for octave in range(4):
+            top_note.transpose('p8', inPlace=True)
+
+        middle_note = deepcopy(bottom_note)
+        for octave in range(2):
+            middle_note.transpose('p8', inPlace=True)
+
+        print('Bottom note:', bottom_note)
+        print('Middle note:', middle_note)
+        print('Top note:', top_note)
+
+        asc = scale.Direction.ASCENDING
+        desc = scale.Direction.DESCENDING
+
+        # Spell RH
+        rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)]
+        rh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(middle_note, top_note, desc)][1:])
+        rh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(middle_note, top_note, asc)][1:])
+        rh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
+        if self.style == 'Jonas':
+            # End with the complete 4 octave scale
+            rh_notes.extend(
+                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)][1:])
+            rh_notes.extend(
+                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
+
+        # Spell LH
+        lh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, middle_note, asc)]
+        lh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, middle_note, desc)[1:]])
+        lh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)][1:])
+        lh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)[1:]])
+        if self.style == 'Jonas':
+            # End with the complete 4 octave scale
+            lh_notes.extend(
+                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)[1:]])
+            lh_notes.extend(
+                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)[1:]])
+
+        lh_notes = [n.transpose('-p8') for n in lh_notes]
+        rh_notes[-1].duration = duration.Duration(1)
+        lh_notes[-1].duration = duration.Duration(1)
+
+        return lh_notes, rh_notes
 
     def apply_fingering(self, detail='full'):
         fingering = ScaleFingering(self, detail=detail)

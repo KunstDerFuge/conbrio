@@ -56,7 +56,7 @@ class ExerciseScore(models.Model):
     motion = models.CharField(1, choices=Motion.choices, default=Motion.SIMILAR)
 
     accuracy = models.FloatField()
-    notes_per_minute = models.FloatField()
+    notes_per_minute = models.PositiveSmallIntegerField()
 
 
 class Profile(models.Model):

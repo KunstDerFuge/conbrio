@@ -1,6 +1,7 @@
 from copy import deepcopy
+from typing import Optional
 
-from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, articulations
+from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, spanner
 
 from api.fingering import ScaleFingering
 from api.utilities import create_grand_staff
@@ -55,14 +56,18 @@ class Exercise:
 
             beamed_notes[-1].beams.fill(duration, type='stop')
 
-    def insert_courtesy_clefs(self, new_clef_threshold_asc=pitch.Pitch('F#4'),
-                              new_clef_threshold_desc=pitch.Pitch('Bb3'), quantize=1):
+    def insert_courtesy_clefs(self,
+                              new_clef_threshold_asc=pitch.Pitch('F#4'),
+                              new_clef_threshold_desc=pitch.Pitch('Bb3'),
+                              ottava_threshold=pitch.Pitch('F6'),
+                              quantize=1):
         """
         Create courtesy clefs, usually for left hand part.
 
         Parameters:
             new_clef_threshold_asc (pitch.Pitch): The note above which we will insert a treble clef.
             new_clef_threshold_desc (pitch.Pitch): The note below which we will insert a bass clef.
+            ottava_threshold (pitch.Pitch): The note above which we will span notes with an ottava (8va).
             quantize (int or None): The number of beats in a grid where the new clef can be inserted.
         """
 
@@ -82,9 +87,32 @@ class Exercise:
                 inserted_treble = True
             if inserted_treble and n.pitch < new_clef_threshold_desc:
                 s.insert(do_quantize(n.offset), clef.BassClef())
-                break
+                inserted_treble = False
 
-    def get_notes_per_minute(self):
+        inserted_ottava = False
+        ottava_start = None
+        ottava_end = None
+        for n in self.right_hand.notes:
+            if not inserted_ottava and n.pitch >= ottava_threshold:
+                print('Inserting ottava...')
+                ottava_start = do_quantize(n.offset)
+                inserted_ottava = True
+            if inserted_ottava and n.pitch < ottava_threshold:
+                print('Terminating ottava...')
+                ottava_end = do_quantize(n.offset)
+                if n.offset > int(n.offset):  # Further into the measure than the first note
+                    ottava_end += 1
+                print('Ottava start/end: ', ottava_start, ottava_end)
+                notes = [n for n in self.right_hand.notes if ottava_start <= n.offset < ottava_end]
+                ottava = spanner.Ottava(transposing=False)
+                ottava.addSpannedElements(notes)
+                self.right_hand.append(ottava)
+                print(ottava)
+                inserted_ottava = False
+                ottava_start = None
+                ottava_end = None
+
+    def get_notes_per_minute(self) -> Optional[int]:
         if not self.tempo or not self.duration:
             return None
 

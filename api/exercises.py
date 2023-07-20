@@ -263,12 +263,6 @@ class Scale(Exercise):
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(middle_note, top_note, asc)][1:])
         rh_notes.extend(
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
-        if self.style == 'Jonas':
-            # End with the complete 4 octave scale
-            rh_notes.extend(
-                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)][1:])
-            rh_notes.extend(
-                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
 
         # Spell LH
         lh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, middle_note, asc)]
@@ -278,12 +272,15 @@ class Scale(Exercise):
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)][1:])
         lh_notes.extend(
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)[1:]])
+
         if self.style == 'Jonas':
             # End with the complete 4 octave scale
-            lh_notes.extend(
-                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)[1:]])
-            lh_notes.extend(
-                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)[1:]])
+            four_oct = [note.Note(p, duration=self.duration) for p in
+                        self.scale.getPitches(bottom_note, top_note, asc)[1:]] + \
+                       [note.Note(p, duration=self.duration) for p in
+                        self.scale.getPitches(bottom_note, top_note, desc)[1:]]
+            lh_notes.extend(four_oct)
+            rh_notes.extend(four_oct)
 
         lh_notes = [n.transpose('-p8') for n in lh_notes]
         rh_notes[-1].duration = duration.Duration(1)

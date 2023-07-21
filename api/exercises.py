@@ -176,6 +176,7 @@ class Scale(Exercise):
                  separated_by=Separation.OCTAVE, contrary=False, tempo=None, articulation=Articulation.LEGATO,
                  style='ABRSM'):
 
+        self.separated_by = separated_by
         self.contrary = contrary
         self.style = style
 

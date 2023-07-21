@@ -9,12 +9,11 @@ from api.utilities import create_grand_staff
 
 class Exercise:
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
-                 separated_by=interval.Interval('-p8'), key_sig=None, tempo=None, articulation=None, staff='grand'):
+                 key_sig=None, tempo=None, articulation=None, staff='grand'):
         self.tonic = tonic
         self.quality = quality
         self.duration = note_duration
         self.octaves = octaves
-        self.separated_by = separated_by
         self.key = key_sig
         self.tempo = tempo
         self.articulation = articulation

@@ -156,35 +156,35 @@ class Exercise:
 
 class Scale(Exercise):
 
-    class ScaleQuality(Enum):
+    class Quality(Enum):
         MAJOR = 'major'
         NATURAL_MINOR = 'minor'
         MELODIC_MINOR = 'melodic'
         HARMONIC_MINOR = 'harmonic'
 
-    class ScaleSeparation(Enum):
+    class Separation(Enum):
         OCTAVE = 'octave'
         THIRD = 'third'
         SIXTH = 'sixth'
         TENTH = 'tenth'
 
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
-                 separated_by=ScaleSeparation.OCTAVE, contrary=False, tempo=None, articulation=None,
+                 separated_by=Separation.OCTAVE, contrary=False, tempo=None, articulation=None,
                  style='ABRSM'):
 
         self.contrary = contrary
         self.style = style
 
-        if quality == Scale.ScaleQuality.MAJOR:
+        if quality == Scale.Quality.MAJOR:
             key_sig = key.Key(tonic.upper())
             self.scale = key_sig.getScale(quality)
-        elif quality == Scale.ScaleQuality.NATURAL_MINOR:
+        elif quality == Scale.Quality.NATURAL_MINOR:
             key_sig = key.Key(tonic.lower())
             self.scale = key_sig.getScale(quality)
-        elif quality == Scale.ScaleQuality.MELODIC_MINOR:
+        elif quality == Scale.Quality.MELODIC_MINOR:
             key_sig = key.Key(tonic.lower())
             self.scale = scale.MelodicMinorScale(tonic)
-        elif quality == Scale.ScaleQuality.HARMONIC_MINOR:
+        elif quality == Scale.Quality.HARMONIC_MINOR:
             key_sig = key.Key(tonic.lower())
             self.scale = scale.HarmonicMinorScale(tonic)
         else:

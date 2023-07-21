@@ -1,5 +1,5 @@
 from copy import deepcopy
-from enum import Enum
+from enum import StrEnum
 from typing import Optional
 
 from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, spanner

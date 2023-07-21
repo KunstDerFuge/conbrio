@@ -176,7 +176,7 @@ class Scale(Exercise):
         else:
             raise ('Invalid key quality passed to Scale constructor:', quality)
 
-        super().__init__(tonic, quality, note_duration, octaves, separated_by, key_sig, tempo, articulation,
+        super().__init__(tonic, quality, note_duration, octaves, key_sig, tempo, articulation,
                          staff='grand')
 
         if self.style in {'Cooke', 'grand', 'Jonas'}:

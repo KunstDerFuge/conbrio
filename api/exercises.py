@@ -162,8 +162,14 @@ class Scale(Exercise):
         MELODIC_MINOR = 'melodic'
         HARMONIC_MINOR = 'harmonic'
 
+    class ScaleSeparation(Enum):
+        OCTAVE = 'octave'
+        THIRD = 'third'
+        SIXTH = 'sixth'
+        TENTH = 'tenth'
+
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
-                 separated_by=interval.Interval('-p8'), contrary=False, tempo=None, articulation=None,
+                 separated_by=ScaleSeparation.OCTAVE, contrary=False, tempo=None, articulation=None,
                  style='ABRSM'):
 
         self.contrary = contrary

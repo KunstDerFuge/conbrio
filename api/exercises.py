@@ -156,23 +156,23 @@ class Exercise:
 
 class Scale(Exercise):
 
-    class Quality(Enum):
+    class Quality(StrEnum):
         MAJOR = 'major'
         NATURAL_MINOR = 'minor'
         MELODIC_MINOR = 'melodic'
         HARMONIC_MINOR = 'harmonic'
 
-    class Separation(Enum):
+    class Separation(StrEnum):
         OCTAVE = 'octave'
         THIRD = 'third'
         SIXTH = 'sixth'
         TENTH = 'tenth'
 
-    class Articulation(Enum):
+    class Articulation(StrEnum):
         LEGATO = 'legato'
         STACCATO = 'staccato'
 
-    class Style(Enum):
+    class Style(StrEnum):
         ABRSM = 'ABRSM'
         GRAND = 'grand'
         JONAS = 'Jonas'

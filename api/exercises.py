@@ -1,4 +1,5 @@
 from copy import deepcopy
+from enum import Enum
 from typing import Optional
 
 from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, spanner
@@ -154,6 +155,13 @@ class Exercise:
 
 
 class Scale(Exercise):
+
+    class ScaleQuality(Enum):
+        MAJOR = 'major'
+        NATURAL_MINOR = 'minor'
+        MELODIC_MINOR = 'melodic'
+        HARMONIC_MINOR = 'harmonic'
+
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
                  separated_by=interval.Interval('-p8'), contrary=False, tempo=None, articulation=None,
                  style='ABRSM'):
@@ -161,16 +169,16 @@ class Scale(Exercise):
         self.contrary = contrary
         self.style = style
 
-        if quality == 'major':
+        if quality == Scale.ScaleQuality.MAJOR:
             key_sig = key.Key(tonic.upper())
-            self.scale = key_sig.getScale('major')
-        elif quality == 'minor':
+            self.scale = key_sig.getScale(quality)
+        elif quality == Scale.ScaleQuality.NATURAL_MINOR:
             key_sig = key.Key(tonic.lower())
-            self.scale = key_sig.getScale('minor')
-        elif quality == 'melodic':
+            self.scale = key_sig.getScale(quality)
+        elif quality == Scale.ScaleQuality.MELODIC_MINOR:
             key_sig = key.Key(tonic.lower())
             self.scale = scale.MelodicMinorScale(tonic)
-        elif quality == 'harmonic':
+        elif quality == Scale.ScaleQuality.HARMONIC_MINOR:
             key_sig = key.Key(tonic.lower())
             self.scale = scale.HarmonicMinorScale(tonic)
         else:

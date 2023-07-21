@@ -168,8 +168,12 @@ class Scale(Exercise):
         SIXTH = 'sixth'
         TENTH = 'tenth'
 
+    class Articulation(Enum):
+        LEGATO = 'legato'
+        STACCATO = 'staccato'
+
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
-                 separated_by=Separation.OCTAVE, contrary=False, tempo=None, articulation=None,
+                 separated_by=Separation.OCTAVE, contrary=False, tempo=None, articulation=Articulation.LEGATO,
                  style='ABRSM'):
 
         self.contrary = contrary

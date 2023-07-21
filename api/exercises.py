@@ -172,9 +172,16 @@ class Scale(Exercise):
         LEGATO = 'legato'
         STACCATO = 'staccato'
 
+    class Style(Enum):
+        ABRSM = 'ABRSM'
+        GRAND = 'grand'
+        JONAS = 'Jonas'
+        COOKE = 'Cooke'
+
+
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
                  separated_by=Separation.OCTAVE, contrary=False, tempo=None, articulation=Articulation.LEGATO,
-                 style='ABRSM'):
+                 style=Style.ABRSM):
 
         self.separated_by = separated_by
         self.contrary = contrary
@@ -198,11 +205,11 @@ class Scale(Exercise):
         super().__init__(tonic, quality, note_duration, octaves, key_sig, tempo, articulation,
                          staff='grand')
 
-        if self.style in {'Cooke', 'grand', 'Jonas'}:
+        if self.style in {Scale.Style.COOKE, Scale.Style.GRAND, Scale.Style.JONAS}:
             time_sig = meter.TimeSignature('7/4')
             time_sig.beamSequence.partition(7)
             time_sig.setDisplay(None)
-        elif self.style == 'ABRSM':
+        elif self.style == Scale.Style.ABRSM:
             time_sig = meter.TimeSignature('15/4')
             time_sig.setDisplay(None)
             self.duration = duration.Duration(0.5)
@@ -212,7 +219,7 @@ class Scale(Exercise):
         self.right_hand.insert(time_sig)
 
         # Spell scale
-        if self.style == 'grand' or self.style == 'Jonas':
+        if self.style == Scale.Style.GRAND or self.style == Scale.Style.JONAS:
             lh_notes, rh_notes = self.spell_grand_scale()
         else:
             bottom_note = self.scale.pitchFromDegree(1)
@@ -291,7 +298,7 @@ class Scale(Exercise):
         lh_notes.extend(
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)[1:]])
 
-        if self.style == 'Jonas':
+        if self.style == Scale.Style.JONAS:
             # End with the complete 4 octave scale
             four_oct = [note.Note(p, duration=self.duration) for p in
                         self.scale.getPitches(bottom_note, top_note, asc)[1:]] + \
@@ -326,10 +333,10 @@ class Scale(Exercise):
 
     def render(self):
         quantize = 1
-        if self.style == 'ABRSM':
+        if self.style == Scale.Style.ABRSM:
             quantize = 2
             self.beam_in_groups(4)
-        elif self.style == 'Cooke':
+        elif self.style == Scale.Style.COOKE:
             self.beam_in_groups(4, duration='sixteenth')
 
         self.apply_fingering()

@@ -221,26 +221,50 @@ class Scale(Exercise):
         if self.style == Scale.Style.GRAND or self.style == Scale.Style.JONAS:
             lh_notes, rh_notes = self.spell_grand_scale()
         else:
-            bottom_note = self.scale.pitchFromDegree(1)
-            if bottom_note >= pitch.Pitch('F4'):
-                bottom_note = bottom_note.transpose('-p8')
+            if self.separated_by == Scale.Separation.SIXTH:
+                lh_bottom_note = self.scale.pitchFromDegree(3)
+                rh_bottom_note = self.scale.pitchFromDegree(1)
+                rh_bottom_note.transpose('p8', inPlace=True)
+            elif self.separated_by in {Scale.Separation.THIRD, Scale.Separation.TENTH}:
+                lh_bottom_note = self.scale.pitchFromDegree(1)
+                rh_bottom_note = self.scale.pitchFromDegree(3)
+                if self.separated_by == Scale.Separation.TENTH:
+                    rh_bottom_note.transpose('p8', inPlace=True)
+            else:
+                lh_bottom_note = self.scale.pitchFromDegree(1)
+                rh_bottom_note = self.scale.pitchFromDegree(1)
+                rh_bottom_note.transpose('p8', inPlace=True)
+            if rh_bottom_note >= pitch.Pitch('F4'):
+                lh_bottom_note = lh_bottom_note.transpose('-p8')
+                rh_bottom_note = rh_bottom_note.transpose('-p8')
 
-            top_note = deepcopy(bottom_note)
+            lh_top_note = deepcopy(lh_bottom_note)
+            rh_top_note = deepcopy(rh_bottom_note)
             for octave in range(self.octaves):
-                top_note.transpose('p8', inPlace=True)
+                lh_top_note.transpose('p8', inPlace=True)
+                rh_top_note.transpose('p8', inPlace=True)
 
             asc = scale.Direction.ASCENDING
             desc = scale.Direction.DESCENDING
-            rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)]
+            rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(rh_bottom_note, rh_top_note, asc)]
             rh_notes.extend(
-                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
+                [note.Note(p, duration=self.duration) for p in self.scale.getPitches(rh_bottom_note, rh_top_note, desc)][1:])
             rh_notes[-1].duration = duration.Duration(1)
 
             if not self.contrary:
-                lh_notes = [deepcopy(n).transpose(self.separated_by) for n in rh_notes]
-            else:
-                lh_top = bottom_note
-                lh_bottom = deepcopy(bottom_note)
+                if self.separated_by == Scale.Separation.OCTAVE:
+                    lh_notes = [deepcopy(n).transpose('-p8') for n in rh_notes]
+                else:
+                    lh_notes = [note.Note(p, duration=self.duration) for p in
+                                self.scale.getPitches(lh_bottom_note, lh_top_note, asc)]
+                    lh_notes.extend(
+                        [note.Note(p, duration=self.duration) for p in
+                         self.scale.getPitches(lh_bottom_note, lh_top_note, desc)][1:])
+                    lh_notes[-1].duration = duration.Duration(1)
+
+            else:  # Contrary motion
+                lh_top = lh_bottom_note
+                lh_bottom = deepcopy(lh_bottom_note)
                 for octave in range(self.octaves):
                     lh_bottom.transpose('-p8', inPlace=True)
                 lh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(lh_bottom, lh_top, desc)]

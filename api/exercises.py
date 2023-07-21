@@ -199,7 +199,7 @@ class Scale(Exercise):
             key_sig = key.Key(tonic.lower())
             self.scale = scale.HarmonicMinorScale(tonic)
         else:
-            raise ('Invalid key quality passed to Scale constructor:', quality)
+            raise Exception('Invalid key quality passed to Scale constructor:', quality)
 
         super().__init__(tonic, quality, note_duration, octaves, key_sig, tempo, articulation,
                          staff='grand')

@@ -2,7 +2,7 @@ from copy import deepcopy
 from enum import StrEnum
 from typing import Optional
 
-from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, spanner
+from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, spanner, articulations
 
 from api.fingering import ScaleFingering
 from api.utilities import create_grand_staff
@@ -272,11 +272,11 @@ class Scale(Exercise):
                     [note.Note(p, duration=self.duration) for p in self.scale.getPitches(lh_bottom, lh_top, asc)][1:])
                 lh_notes[-1].duration = duration.Duration(1)
 
-        if self.articulation:
+        if self.articulation == Scale.Articulation.STACCATO:
             for n in lh_notes:
-                n.articulations.append(self.articulation)
+                n.articulations.append(articulations.Staccato())
             for n in rh_notes:
-                n.articulations.append(self.articulation)
+                n.articulations.append(articulations.Staccato())
 
         self.right_hand.append(rh_notes)
         self.left_hand.append(lh_notes)

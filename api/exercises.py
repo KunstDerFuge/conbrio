@@ -178,6 +178,10 @@ class Scale(Exercise):
         JONAS = 'Jonas'
         COOKE = 'Cooke'
 
+    class Motion(StrEnum):
+        SIMILAR = 'similar'
+        CONTRARY = 'contrary'
+
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.25), octaves=2,
                  separated_by=Separation.OCTAVE, contrary=False, tempo=None, articulation=Articulation.LEGATO,
                  style=Style.ABRSM):

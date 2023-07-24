@@ -368,29 +368,41 @@ class Scale(Exercise):
 
 
 class Arpeggio(Exercise):
-    def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.5), octaves=2,
+    
+    class Quality(StrEnum):
+        MAJOR = 'major'
+        MINOR = 'minor'
+        DOMINANT = 'dominant'
+        DIMINISHED = 'diminished'
+
+    class Inversion(Enum):
+        ROOT = 0
+        FIRST = 1
+        SECOND = 2
+        THIRD = 3
+
+    def __init__(self, tonic='C', quality=Quality.MAJOR, note_duration=duration.Duration(0.5), octaves=2,
                  separated_by=interval.Interval('-p8'), inversion=0, tempo=None, articulation=None,
                  style='ABRSM'):
 
         self.inversion = inversion
         self.style = style
 
-        if quality == 'major':
+        if quality == Arpeggio.Quality.MAJOR:
             key_sig = key.Key(tonic.upper(), mode='major')
-        elif quality == 'minor':
+        elif quality == Arpeggio.Quality.MINOR:
             key_sig = key.Key(tonic.lower(), mode='minor')
-        elif quality == 'dominant':
+        elif quality == Arpeggio.Quality.DOMINANT:
             key_sig = key.Key(
                 key.sharpsToPitch(key.Key(tonic.upper(), mode='major').sharps - 1))  # dominant of the base key
-        elif quality == 'diminished':
+        elif quality == Arpeggio.Quality.DIMINISHED:
             key_sig = None
         else:
             raise ('Invalid key quality passed to Arpeggio constructor:', quality)
 
-        super().__init__(tonic, quality, note_duration, octaves, separated_by, key_sig, tempo, articulation,
-                         staff='grand')
+        super().__init__(tonic, quality, note_duration, octaves, key_sig, tempo, articulation, staff='grand')
 
-        if quality in ['major', 'minor']:
+        if quality in [Arpeggio.Quality.MAJOR, Arpeggio.Quality.MINOR]:
             time_sig = meter.TimeSignature('7/4')
         else:
             # Four-note broken chords, more space needed
@@ -399,13 +411,13 @@ class Arpeggio(Exercise):
         self.left_hand.insert(time_sig)
         self.right_hand.insert(time_sig)
 
-        if self.quality == 'major':
+        if self.quality == Arpeggio.Quality.MAJOR:
             root = self.key.pitchFromDegree(1)
             notes = [root, root.transpose('M3'), root.transpose('p5')]
-        elif self.quality == 'minor':
+        elif self.quality == Arpeggio.Quality.MINOR:
             root = self.key.pitchFromDegree(1)
             notes = [root, root.transpose('m3'), root.transpose('p5')]
-        elif self.quality == 'dominant':
+        elif self.quality == Arpeggio.Quality.DOMINANT:
             root = self.key.pitchFromDegree(5)
             root.octave = 4
             notes = [root, root.transpose('M3'), root.transpose('p5'), root.transpose('m7')]
@@ -446,7 +458,7 @@ class Arpeggio(Exercise):
         rh_notes.append(top_note)
         rh_notes.extend(rh_notes_descending)
 
-        if self.quality == 'dominant' and self.style == 'ABRSM':
+        if self.quality == Arpeggio.Quality.DOMINANT and self.style == 'ABRSM':
             # ABRSM 2022-2023 dominant arpeggios resolve on the tonic
             rh_notes[-1] = rh_notes[-2].transpose('m2')
         rh_notes[-1].duration = duration.Duration(1)  # End with quarter note

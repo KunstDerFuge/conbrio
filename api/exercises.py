@@ -175,6 +175,7 @@ class Scale(Exercise):
     class Style(StrEnum):
         ABRSM = 'ABRSM'
         GRAND = 'grand'
+        HANON = 'Hanon'
         JONAS = 'Jonas'
         COOKE = 'Cooke'
 

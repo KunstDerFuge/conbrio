@@ -385,9 +385,14 @@ class Arpeggio(Exercise):
         SECOND = 2
         THIRD = 3
 
-    def __init__(self, tonic='C', quality=Quality.MAJOR, note_duration=duration.Duration(0.5), octaves=2,
-                 separated_by=interval.Interval('-p8'), inversion=0, tempo=None, articulation=None,
-                 style='ABRSM'):
+    class Style(StrEnum):
+        ABRSM = 'ABRSM'
+        HANON = 'Hanon'
+        JONAS = 'Jonas'
+        RACH = 'Rach'
+
+    def __init__(self, tonic='C', quality=Quality.MAJOR, note_duration=duration.Duration(0.5), octaves=2, inversion=0,
+                 tempo=None, articulation=None, style=Style.ABRSM):
 
         self.inversion = inversion
         self.style = style
@@ -462,7 +467,7 @@ class Arpeggio(Exercise):
         rh_notes.append(top_note)
         rh_notes.extend(rh_notes_descending)
 
-        if self.quality == Arpeggio.Quality.DOMINANT and self.style == 'ABRSM':
+        if self.quality == Arpeggio.Quality.DOMINANT and self.style == Arpeggio.Style.ABRSM:
             # ABRSM 2022-2023 dominant arpeggios resolve on the tonic
             rh_notes[-1] = rh_notes[-2].transpose('m2')
         rh_notes[-1].duration = duration.Duration(1)  # End with quarter note

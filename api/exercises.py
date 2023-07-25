@@ -393,10 +393,39 @@ class Arpeggio(Exercise):
         RACH = 'Rach'
 
     def __init__(self, tonic='C', quality=Quality.MAJOR, note_duration=duration.Duration(0.5), octaves=2, inversion=0,
-                 tempo=None, articulation=None, style=Style.ABRSM):
+                 tempo=None, articulation=None, style=Style.ABRSM, level=None):
 
         self.inversion = inversion
         self.style = style
+
+        if style == Arpeggio.Style.ABRSM and level is not None:
+            if level == 8:
+                tempo = tempo.MetronomeMark(number=66, referent=duration.Duration(2))
+            elif level == 7:
+                tempo = tempo.MetronomeMark(number=56, referent=duration.Duration(2))
+            elif level == 6:
+                tempo = tempo.MetronomeMark(number=50, referent=duration.Duration(2))
+            elif level == 5:
+                tempo = tempo.MetronomeMark(number=44, referent=duration.Duration(2))
+            elif level == 4:
+                tempo = tempo.MetronomeMark(number=80, referent=duration.Duration(1))
+            elif level == 3:
+                tempo = tempo.MetronomeMark(number=72, referent=duration.Duration(1))
+            elif level == 2:
+                tempo = tempo.MetronomeMark(number=63, referent=duration.Duration(1))
+            elif level == 1:
+                tempo = tempo.MetronomeMark(number=58, referent=duration.Duration(1))
+            elif level == 0:
+                tempo = tempo.MetronomeMark(number=52, referent=duration.Duration(1))
+            else:
+                raise Exception('Invalid level passed to Arpeggio:', level)
+
+            if level >= 6:
+                octaves = 4
+            elif level >= 2:
+                octaves = 2
+            else:
+                octaves = 1
 
         if quality == Arpeggio.Quality.MAJOR:
             key_sig = key.Key(tonic.upper(), mode='major')

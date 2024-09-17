@@ -32,7 +32,7 @@ function App() {
       const verovioToolkit = new VerovioToolkit(VerovioModule)
       setToolkit(verovioToolkit)
       verovioToolkit.setOptions({
-        scale: 60,
+        scale: 50,
         font: 'Leipzig',
         staffLineWidth: 0.2,
         stemWidth: 0.3,

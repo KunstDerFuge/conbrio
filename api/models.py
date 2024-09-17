@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
+from taggit.managers import TaggableManager
 
 
 class ExerciseScore(models.Model):
@@ -80,3 +81,11 @@ def create_user_profile(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
+
+
+class Excerpt(models.Model):
+    xml = models.FileField(upload_to='excerpts')
+    title = models.CharField(max_length=128)
+    composer = models.CharField(max_length=64)
+    abrsm_level = models.PositiveSmallIntegerField(default=0)
+    tags = TaggableManager()

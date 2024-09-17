@@ -100,7 +100,9 @@ class Exercise:
                 print('Terminating ottava...')
                 ottava_end = do_quantize(n.offset)
                 # If the ottava can end within a beat (i.e. 'and of 2'), extend it to the end of the beat
-                if n.offset > int(n.offset):
+                if ottava_end > int(n.offset):
+                    print('Extending ottava...')
+                    print(n.offset, int(n.offset))
                     ottava_end += 1
                 print('Ottava start/end: ', ottava_start, ottava_end)
                 notes = [n for n in self.right_hand.notes if ottava_start <= n.offset < ottava_end]

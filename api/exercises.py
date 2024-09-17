@@ -2,9 +2,8 @@ from copy import deepcopy
 from enum import StrEnum, Enum
 from typing import Optional
 
-from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, interval, chord, stream, spanner, articulations
+from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, chord, stream, spanner, articulations
 
-from api.fingering import ScaleFingering
 from api.utilities import create_grand_staff
 
 

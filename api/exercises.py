@@ -143,7 +143,27 @@ class Exercise:
         else:
             return 0
 
-    def render(self):
+    def get_tags(self):
+        tags = set()
+
+        if self.tonic and self.quality:
+            tags.add(f'{self.tonic} {self.quality}')
+
+        if self.octaves:
+            tags.add(f'{self.octaves} Octaves')
+
+        if self.articulation:
+            tags.add(f'{self.articulation}')
+
+        return tags
+
+    def get_name(self):
+        pass
+
+    def get_url(self):
+        pass
+
+    def render(self, tags=None):
         if self.staff == 'grand':
             for part in self.left_hand, self.right_hand:
                 part.makeNotation(inPlace=True)  # makes measures
@@ -151,7 +171,11 @@ class Exercise:
             self.s.makeNotation(inPlace=True)
 
         parser = musicxml.m21ToXml.GeneralObjectExporter(self.s)
-        print('Done generating scale!')
+        print('Done generating exercise!')
+        if tags:
+            print('Tags:')
+            print(tags)
+        print(self.get_name())
         return parser.parse().decode('utf-8')
 
 
@@ -360,7 +384,51 @@ class Scale(Exercise):
         }
         return self.get_ABRSM_level_from_rubric(rubric)
 
-    def render(self):
+    def get_tags(self):
+        tags = super().get_tags()
+
+        tags.add('Scale')
+
+        if self.separated_by != self.Separation.OCTAVE:
+            tags.add(f'At the {self.separated_by}')
+
+        if self.style:
+            tags.add(self.style)
+
+        if self.style in [Scale.Style.JONAS, Scale.Style.GRAND]:
+            tags.add('Grand scale')
+            tags.add('Contrary motion')
+        elif self.contrary:
+            tags.add('Contrary motion')
+
+        level = self.get_ABRSM_level()
+        if level > 0:
+            tags.add(f'ABRSM level {level}')
+
+        return tags
+
+    def get_url(self):
+        params = {
+            'style': self.style,
+        }
+        return f'/practice/scales'
+
+    def get_name(self) -> str:
+        quality_name = {
+            Scale.Quality.MAJOR: 'Major',
+            Scale.Quality.MELODIC_MINOR: 'melodic minor',
+            Scale.Quality.HARMONIC_MINOR: 'harmonic minor',
+            Scale.Quality.NATURAL_MINOR: 'natural minor'
+        }
+        scale_name = f'{self.style} scale in {self.tonic} {quality_name[self.quality]}'
+        if self.contrary:
+            scale_name += ', contrary motion'
+        if self.separated_by != Scale.Separation.OCTAVE:
+            scale_name += f', separated by a {self.separated_by}'
+
+        return scale_name
+
+    def render(self, tags=None):
         quantize = 1
         if self.style == Scale.Style.ABRSM:
             quantize = 2
@@ -370,7 +438,7 @@ class Scale(Exercise):
 
         self.apply_fingering()
         self.insert_courtesy_clefs(quantize=quantize)
-        return super().render()
+        return super().render(self.get_tags())
 
 
 class Arpeggio(Exercise):
@@ -522,6 +590,35 @@ class Arpeggio(Exercise):
             1: 106
         }
         return self.get_ABRSM_level_from_rubric(rubric)
+    
+    def get_tags(self):
+        tags = super().get_tags()
+
+        tags.add('Arpeggio')
+
+        if self.style:
+            tags.add(self.style)
+
+        if self.quality in [Arpeggio.Quality.DOMINANT, Arpeggio.Quality.DIMINISHED]:
+            tags.add(self.quality)
+
+        level = self.get_ABRSM_level()
+        if level > 0:
+            tags.add(f'Level {level}')
+
+        return tags
+    
+    def get_name(self):
+        inversion_name = {
+            1: '1st',
+            2: '2nd',
+            3: '3rd'
+        }
+        arpeggio_name = f'{self.style} scale in {self.tonic} {self.quality}'
+        if self.inversion != 0:
+            arpeggio_name += f', {inversion_name[self.inversion]} inversion'
+
+        return arpeggio_name
 
     def render(self):
         if self.tonic in ['A', 'Ab']:

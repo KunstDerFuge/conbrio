@@ -628,3 +628,9 @@ class Arpeggio(Exercise):
         self.insert_courtesy_clefs(new_clef_threshold_asc=asc_threshold, quantize=2)
         self.beam_in_groups(4)
         return super(Arpeggio, self).render()
+
+
+class ChordExercise(Exercise):
+    def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.5), octaves=2, inversion=0,
+                 tempo=None, articulation=None, style='simple'):
+        super().__init__(tonic, quality, note_duration, octaves, tempo, articulation)

@@ -182,3 +182,25 @@ def generate_chord_exercise(request) -> JsonResponse:
 
     parser = musicxml.m21ToXml.GeneralObjectExporter(s)
     return JsonResponse({'xml': parser.parse().decode('utf-8')})
+
+
+def grade_exercise(request) -> JsonResponse:
+    type = request.GET.get('exercise', 'scale')
+    key = request.GET.get('key', 'CMaj')
+    variant = request.GET.get('variant', None)
+
+    # TODO: actually calculate this
+    accuracy = 0.95
+    notes_per_minute = 60
+
+    if type == 'scale':
+        score = ExerciseScore(
+            exercise=Scale(),
+            accuracy=accuracy,
+            notes_per_minute=notes_per_minute,
+        )
+        score.save()
+        profile = request.user.profile
+        profile.exercise_scores.add(score)
+
+    # elif type == 'arpeggio'

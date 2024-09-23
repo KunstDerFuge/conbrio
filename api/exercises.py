@@ -484,7 +484,7 @@ class Scale(Exercise):
 
 
 class Arpeggio(Exercise):
-    
+
     class Quality(StrEnum):
         MAJOR = 'major'
         MINOR = 'minor'

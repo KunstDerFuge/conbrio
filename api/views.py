@@ -53,16 +53,26 @@ def get_excerpt(request):
     return JsonResponse({}, status=404)
 
 def generate_scale(request) -> JsonResponse:
-    tonic = request.GET.get('tonic', 'ab')
-    quality = request.GET.get('quality', 'melodic')
-    style = request.GET.get('style', 'ABRSM')
+    tonic = request.GET.get('tonic', 'ab').replace('s', '#')
+    quality = request.GET.get('quality', Scale.Quality.MAJOR)
+    style = request.GET.get('style', Scale.Style.ABRSM)
+    octaves = int(request.GET.get('octaves', 2))
+    separation = request.GET.get('separation', Scale.Separation.OCTAVE)
     print(f'Generating {tonic} {quality} {style} scale...')
 
-    # _scale = Scale(tonic, quality, octaves=2, style=style)
-    _scale = Arpeggio(tonic, quality, octaves=2,
-                      tempo=tempo.MetronomeMark(number=110, referent=duration.Duration(2)), style=style)
+    _scale = Scale(tonic, quality, note_duration=duration.Duration(0.25),
+                   tempo=tempo.MetronomeMark(number=80, referent=duration.Duration(1)), octaves=octaves,
+                   style=style, separated_by=separation)
+    # _scale = Arpeggio(tonic, Arpeggio.Quality.DOMINANT, octaves=4,
+    #                   tempo=tempo.MetronomeMark(number=72, referent=duration.Duration(1)), style=style)
+    npm = _scale.get_notes_per_minute()
+    print('Notes per minute:', npm)
+    print('ABRSM level:', _scale.get_ABRSM_level())
+    next_name = _scale.get_next().get_name()
+    next_url = _scale.get_next().get_url()
+    print('Next: ', next_name)
 
-    return JsonResponse({'xml': _scale.render()})
+    return JsonResponse({'xml': _scale.render(), 'next_name': next_name, 'next_url': next_url})
 
 
 def generate_chord_exercise(request) -> JsonResponse:

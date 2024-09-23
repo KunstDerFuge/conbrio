@@ -258,7 +258,7 @@ class Scale(Exercise):
 
         # Spell scale
         if self.style == Scale.Style.GRAND or self.style == Scale.Style.JONAS:
-            lh_notes, rh_notes = self.spell_grand_scale()
+            lh_notes, rh_notes = self.spell_grand_scale(jonas_first_hand='left')
         else:
             if self.separated_by == Scale.Separation.SIXTH:
                 lh_bottom_note = self.scale.pitchFromDegree(3)
@@ -325,10 +325,10 @@ class Scale(Exercise):
         self.right_hand.append(rh_notes)
         self.left_hand.append(lh_notes)
 
-    def spell_grand_scale(self):
+    def spell_grand_scale(self, jonas_first_hand=None):
+        rh_notes = []
+        lh_notes = []
         bottom_note = self.scale.pitchFromDegree(1)
-        # for octave in range(1):
-        #     bottom_note.transpose('-p8', inPlace=True)
         if bottom_note >= pitch.Pitch('F2'):
             bottom_note = bottom_note.transpose('-p8')
 
@@ -347,8 +347,18 @@ class Scale(Exercise):
         asc = scale.Direction.ASCENDING
         desc = scale.Direction.DESCENDING
 
+        if jonas_first_hand:
+            if jonas_first_hand == 'right':
+                print('Beginning Jonas grand scale with right hand...')
+                lh_notes.append(note.Rest(quarterLength=0.5))
+            else:
+                print('Beginning Jonas grand scale with left hand...')
+                rh_notes.append(note.Rest(quarterLength=0.5))
+
+
         # Spell RH
-        rh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)]
+        rh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, asc)])
         rh_notes.extend(
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(middle_note, top_note, desc)][1:])
         rh_notes.extend(
@@ -357,7 +367,8 @@ class Scale(Exercise):
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, top_note, desc)][1:])
 
         # Spell LH
-        lh_notes = [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, middle_note, asc)]
+        lh_notes.extend(
+            [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, middle_note, asc)])
         lh_notes.extend(
             [note.Note(p, duration=self.duration) for p in self.scale.getPitches(bottom_note, middle_note, desc)[1:]])
         lh_notes.extend(
@@ -374,7 +385,10 @@ class Scale(Exercise):
             lh_notes.extend(four_oct)
             rh_notes.extend(four_oct)
 
-        lh_notes = [n.transpose('-p8') for n in lh_notes]
+        for n in lh_notes:
+            if n.isNote:
+                n.transpose('-p8', inPlace=True)
+
         rh_notes[-1].duration = duration.Duration(1)
         lh_notes[-1].duration = duration.Duration(1)
 

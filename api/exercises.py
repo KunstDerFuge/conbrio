@@ -433,8 +433,10 @@ class Scale(Exercise):
         if self.style == Scale.Style.ABRSM:
             quantize = 2
             self.beam_in_groups(4)
+        elif self.style == Scale.Style.HANON:
+            self.beam_in_groups(8, 4, 2)
         elif self.style == Scale.Style.COOKE:
-            self.beam_in_groups(4, duration='sixteenth')
+            self.beam_in_groups(4)
 
         self.apply_fingering()
         self.insert_courtesy_clefs(quantize=quantize)

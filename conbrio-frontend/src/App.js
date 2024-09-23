@@ -1,9 +1,9 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import Module from 'verovio/wasm/verovio-toolkit-wasm-hum.js'
 import {VerovioToolkit} from 'verovio'
 import {WebMidi} from 'webmidi'
 import {FormControl, InputLabel, MenuItem, Select} from '@mui/material'
-import Scales from './Scales'
+import ExerciseMenu from './ExerciseMenu'
 
 function App() {
   const [score, setScore] = useState('')
@@ -13,6 +13,7 @@ function App() {
   const [selectedInputDevice, setSelectedInputDevice] = useState('')
   const [selectedOutputDevice, setSelectedOutputDevice] = useState('')
   const [loading, setLoading] = useState(true)
+  const [exercise, setExercise] = useState('scales')
 
   function renderScore(scoreXml) {
     toolkit.loadData(scoreXml)
@@ -39,12 +40,14 @@ function App() {
         fingeringScale: 0.6,
         header: 'none',
         footer: 'none',
+        landscape: false,
         adjustPageHeight: true,
-        adjustPageWidth: false,
+        adjustPageWidth: true,
         breaks: 'encoded',
       })
       console.log(verovioToolkit.getVersion())
       console.log(verovioToolkit.getOptions())
+      !WebMidi.isEnabled &&
       WebMidi.enable()
         .then(() => {
           console.log('WebMidi enabled!')
@@ -64,10 +67,27 @@ function App() {
       {!loading &&
         <>
           <div style={{display: 'flex', justifyContent: 'center'}}>
+            <div>
+              <Select
+                variant='standard'
+                labelId="exercise-label"
+                id="exercise"
+                value={exercise}
+                label="Exercise"
+                onChange={(e) => setExercise(e.target.value)}
+              >
+                <MenuItem value={'scales'}>Scales</MenuItem>
+                <MenuItem value={'arpeggios'}>Arpeggios</MenuItem>
+                <MenuItem value={'chords'}>Chords</MenuItem>
+              </Select>
+            </div>
+            <br/>
             <div dangerouslySetInnerHTML={{__html: score}}></div>
           </div>
           {/*<ReadingRandomNote renderScore={renderScore} selectedInputDevice={selectedInputDevice} />*/}
-          <Scales renderScore={renderScore}/>
+          {
+            <ExerciseMenu renderScore={renderScore}/>
+          }
           <div style={{display: 'flex', justifyContent: 'center'}}>
             <FormControl sx={{m: 1, minWidth: 220}}>
               <InputLabel id="midiDevice-label">Midi Input Device</InputLabel>

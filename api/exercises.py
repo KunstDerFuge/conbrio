@@ -1,3 +1,4 @@
+import urllib
 from copy import deepcopy
 from enum import StrEnum, Enum
 from typing import Optional

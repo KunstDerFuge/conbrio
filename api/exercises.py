@@ -273,7 +273,12 @@ class Scale(Exercise):
                 lh_bottom_note = self.scale.pitchFromDegree(1)
                 rh_bottom_note = self.scale.pitchFromDegree(1)
                 rh_bottom_note.transpose('p8', inPlace=True)
+
+            lh_bottom_note = lh_bottom_note.transpose('-p8')
+            rh_bottom_note = rh_bottom_note.transpose('-p8')
+
             if rh_bottom_note >= pitch.Pitch('F4'):
+                print('Transposing down...')
                 lh_bottom_note = lh_bottom_note.transpose('-p8')
                 rh_bottom_note = rh_bottom_note.transpose('-p8')
 

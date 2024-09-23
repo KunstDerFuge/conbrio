@@ -36,7 +36,7 @@ class Exercise:
             else:
                 self.s.insert(0, self.tempo)
 
-    def beam_in_groups(self, group_size, duration='eighth'):
+    def beam_in_groups(self, group_size, secondary_group_size=None, num_beams=1):
         if self.staff == 'grand':
             stream_list = [self.left_hand, self.right_hand]
         else:
@@ -47,13 +47,20 @@ class Exercise:
             for number, _note in enumerate(beamed_notes):
                 _note.beams.beamsList = []
                 if number % group_size == 0:
-                    _note.beams.fill(duration, type='start')
+                    _note.beams.fill(num_beams, type='start')
                 elif number % group_size == group_size - 1:
-                    _note.beams.fill(duration, type='stop')
+                    _note.beams.fill(num_beams, type='stop')
                 else:
-                    _note.beams.fill(duration, type='continue')
+                    _note.beams.fill(num_beams, type='continue')
 
-            beamed_notes[-1].beams.fill(duration, type='stop')
+                # Fill secondary beams
+                if secondary_group_size:
+                    if number % secondary_group_size == 0:
+                        _note.beams.setByNumber(num_beams-1, type='start')
+                    elif number % secondary_group_size == secondary_group_size - 1:
+                        _note.beams.setByNumber(num_beams-1, type='stop')
+
+            beamed_notes[-1].beams.fill(num_beams, type='stop')
 
     def insert_courtesy_clefs(self,
                               new_clef_threshold_asc=pitch.Pitch('F#4'),

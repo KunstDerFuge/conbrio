@@ -613,7 +613,7 @@ class Arpeggio(Exercise):
             rh_notes[-1] = rh_notes[-2].transpose('m2')
         rh_notes[-1].duration = duration.Duration(1)  # End with quarter note
 
-        lh_notes = [deepcopy(n).transpose(self.separated_by) for n in rh_notes]
+        lh_notes = [deepcopy(n).transpose('-p8') for n in rh_notes]
 
         self.right_hand.append(rh_notes)
         self.left_hand.append(lh_notes)

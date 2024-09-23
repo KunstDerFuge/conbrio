@@ -4,6 +4,7 @@ from typing import Optional
 
 from music21 import key, scale, meter, duration, pitch, note, clef, musicxml, chord, stream, spanner, articulations
 
+from api.syllabus import ScaleSyllabus
 from api.utilities import create_grand_staff
 
 
@@ -414,11 +415,14 @@ class Scale(Exercise):
 
         return tags
 
-    def get_url(self):
+    def get_url(self) -> str:
         params = {
+            'key': f'{self.tonic}-{self.quality}'.replace('#', 's'),
             'style': self.style,
+            'octaves': self.octaves,
+            'separation': self.separated_by
         }
-        return f'/practice/scales'
+        return f'/practice/scales?' + urllib.parse.urlencode(params)
 
     def get_name(self) -> str:
         quality_name = {
@@ -434,6 +438,14 @@ class Scale(Exercise):
             scale_name += f', separated by a {self.separated_by}'
 
         return scale_name
+
+    def get_next(self, syllabus=None):
+        current = ScaleSyllabus.hanon.index(f'{self.tonic} {self.quality}')
+        next_key = ScaleSyllabus.hanon[current + 1]
+        new_scale = deepcopy(self)
+        new_scale.tonic = next_key.split()[0]
+        new_scale.quality = next_key.split()[1]
+        return new_scale
 
     def render(self, tags=None):
         quantize = 1

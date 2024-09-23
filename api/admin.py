@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from api.models import Excerpt
+
+
+class ExcerptAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug': ('composer', 'title',)}
+
+admin.site.register(Excerpt, ExcerptAdmin)

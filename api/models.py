@@ -86,6 +86,10 @@ def save_user_profile(sender, instance, **kwargs):
 class Excerpt(models.Model):
     xml = models.FileField(upload_to='excerpts')
     title = models.CharField(max_length=128)
-    composer = models.CharField(max_length=64)
+    slug = models.SlugField(null=True, unique=True)
+    composer = models.CharField(max_length=128)
     abrsm_level = models.PositiveSmallIntegerField(default=0)
     tags = TaggableManager()
+
+    def __str__(self):
+        return f'{self.composer}: {self.title}'

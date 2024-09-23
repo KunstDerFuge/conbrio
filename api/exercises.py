@@ -395,8 +395,9 @@ class Scale(Exercise):
         return lh_notes, rh_notes
 
     def apply_fingering(self, detail='full'):
-        fingering = ScaleFingering(self, detail=detail)
-        fingering.apply()
+        pass
+        # fingering = ScaleFingering(self, detail=detail)
+        # fingering.apply()
 
     def get_ABRSM_level(self) -> int:
         # Source: ABRSM 2023-2024 piano syllabus grade 8

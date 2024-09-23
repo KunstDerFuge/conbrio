@@ -1,6 +1,9 @@
+from http.client import HTTPResponse
+
 from django.http import JsonResponse
 
 from .exercises import Scale, Arpeggio
+from .models import ExerciseScore, Excerpt
 from .utilities import *
 from music21 import stream, layout, note, key, clef, pitch, musicxml
 
@@ -42,6 +45,12 @@ def get_all_chromatic_notes(request):
     return JsonResponse(
         {'notes': [n.unicodeNameWithOctave for n in scale.ChromaticScale('C').getPitches('A0', 'C8')]})
 
+def get_excerpt(request):
+    file = request.path.split('/')[-1]
+    xml = Excerpt.objects.filter(xml=file).first()
+    if xml:
+        return JsonResponse({'excerpt': xml})
+    return JsonResponse({}, status=404)
 
 def generate_scale(request) -> JsonResponse:
     tonic = request.GET.get('tonic', 'ab')

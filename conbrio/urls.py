@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/exercise/', api.views.get_random_note),
     path('api/scale/', api.views.generate_scale),
+    path('api/chords/', api.views.generate_chord_exercise),
     path('api/chromatic/', api.views.get_all_chromatic_notes),
     re_path('api/excerpt/*', api.views.get_excerpt),
     re_path('practice/*', frontend.views.app),

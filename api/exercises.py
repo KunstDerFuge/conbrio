@@ -483,7 +483,7 @@ class Scale(Exercise):
         return super().render(self.get_tags())
 
 
-class Arpeggio(Exercise):
+class ChordBasedExercise(Exercise):
 
     class Quality(StrEnum):
         MAJOR = 'major'
@@ -503,8 +503,97 @@ class Arpeggio(Exercise):
         JONAS = 'Jonas'
         RACH = 'Rach'
 
-    def __init__(self, tonic='C', quality=Quality.MAJOR, note_duration=duration.Duration(0.5), octaves=2, inversion=0,
-                 tempo=None, articulation=None, style=Style.ABRSM, level=None):
+    @staticmethod
+    def common_tone_chords_from_note(_note: note.Note) -> [chord.Chord]:
+        # Rachmaninoff common tone chord series
+        chords = [
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('p5')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('p5')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('m6')]),
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('m6')]),
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('p4'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('p4'), _note.transpose('m6')]),
+        ]
+
+        # If G or Ab, transpose down an octave for 7th chord series
+        if _note.pitch.name in ['G', 'Ab']:
+            _note = _note.transpose('-p8')
+
+        chords += [
+            chord.Chord([_note, _note.transpose('M3'), _note.transpose('p5'), _note.transpose('m7')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('d5'), _note.transpose('m6')]),
+            chord.Chord([_note, _note.transpose('m3'), _note.transpose('p4'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('M2'), _note.transpose('a4'), _note.transpose('M6')]),
+            chord.Chord([_note, _note.transpose('a2'), _note.transpose('a4'), _note.transpose('M6')]),
+        ]
+
+        return chords
+
+    @staticmethod
+    def key_from_chord(_chord: chord.Chord) -> key.Key:
+        quality = _chord.quality
+        if quality == 'augmented':
+            quality = 'major'
+        elif quality == 'diminished':
+            return key.Key(_chord.sortAscending()[0].transpose('p5').name, 'major')
+        elif _chord.seventh is not None:
+            # Dominant
+            return key.Key(_chord.root().transpose('p4'), 'major')
+
+        return key.Key(_chord.root().name, quality)
+
+    @staticmethod
+    def exercise_from_chord(_chord: chord.Chord) -> list[chord.Chord]:
+        chords = [_chord]
+        chord_notes = list(_chord.sortAscending().pitches)
+        num_chord_notes = len(_chord)
+        for inversion in range(num_chord_notes):
+            chord_notes[0] = chord_notes[0].transpose('p8')
+            c = chord.Chord(chord_notes)
+            chord_notes = list(c.sortAscending().pitches)
+            chords.append(c)
+
+        for inversion in range(num_chord_notes, 0, -1):
+            chord_notes[-1] = chord_notes[-1].transpose('-p8')
+            c = chord.Chord(chord_notes)
+            chord_notes = list(c.sortAscending().pitches)
+            chords.append(c)
+
+        for c in chords:
+            c.duration = duration.Duration(2)
+            c.sortAscending(inPlace=True)
+            lh_fingering = [
+                articulations.Fingering(5),
+                articulations.Fingering(3),
+                articulations.Fingering(1),
+            ]
+
+            rh_fingering = [
+                articulations.Fingering(1),
+                articulations.Fingering(3),
+                articulations.Fingering(5)
+            ]
+
+            fingering = lh_fingering
+            fingering.extend(rh_fingering)
+
+            for finger in lh_fingering:
+                finger.placement = 'below'
+                finger.alternate = True
+
+            for finger in rh_fingering:
+                finger.placement = 'above'
+                finger.substitution = True
+
+            c.articulations.extend(fingering)
+        chords[-1].duration = duration.Duration(4)
+        return chords
+    
+
+class Arpeggio(ChordBasedExercise):
+    def __init__(self, tonic='C', quality=ChordBasedExercise.Quality.MAJOR, note_duration=duration.Duration(0.5), octaves=2, inversion=0,
+                 tempo=None, articulation=None, style=ChordBasedExercise.Style.ABRSM, level=None):
 
         self.inversion = inversion
         self.style = style
@@ -662,7 +751,7 @@ class Arpeggio(Exercise):
 
         return arpeggio_name
 
-    def render(self):
+    def render(self, tags=None):
         if self.tonic in ['A', 'Ab']:
             asc_threshold = pitch.Pitch('F4')
         else:
@@ -672,7 +761,9 @@ class Arpeggio(Exercise):
         return super(Arpeggio, self).render()
 
 
-class ChordExercise(Exercise):
+class ChordExercise(ChordBasedExercise):
     def __init__(self, tonic='C', quality='major', note_duration=duration.Duration(0.5), octaves=2, inversion=0,
                  tempo=None, articulation=None, style='simple'):
         super().__init__(tonic, quality, note_duration, octaves, tempo, articulation)
+    
+

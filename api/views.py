@@ -1,11 +1,10 @@
-from http.client import HTTPResponse
+import base64
 
 from django.http import JsonResponse
 
 from .exercises import Scale, Arpeggio
 from .models import ExerciseScore, Excerpt
 from .utilities import *
-from music21 import stream, layout, note, key, clef, pitch, musicxml
 
 
 def get_random_note(request):
@@ -46,10 +45,10 @@ def get_all_chromatic_notes(request):
         {'notes': [n.unicodeNameWithOctave for n in scale.ChromaticScale('C').getPitches('A0', 'C8')]})
 
 def get_excerpt(request):
-    file = request.path.split('/')[-1]
-    xml = Excerpt.objects.filter(xml=file).first()
-    if xml:
-        return JsonResponse({'excerpt': xml})
+    slug = request.path.split('/')[-1]
+    excerpt = Excerpt.objects.filter(slug=slug).first()
+    if excerpt:
+        return JsonResponse(data={'pdf': base64.b64encode(excerpt.pdf.read()).decode('utf-8')})
     return JsonResponse({}, status=404)
 
 def generate_scale(request) -> JsonResponse:

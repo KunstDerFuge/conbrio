@@ -84,7 +84,7 @@ def save_user_profile(sender, instance, **kwargs):
 
 
 class Excerpt(models.Model):
-    xml = models.FileField(upload_to='excerpts')
+    pdf = models.FileField(upload_to='excerpts')
     title = models.CharField(max_length=128)
     slug = models.SlugField(null=True, unique=True)
     composer = models.CharField(max_length=128)

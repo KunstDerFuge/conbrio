@@ -3,10 +3,13 @@ import Module from 'verovio/wasm/verovio-toolkit-wasm-hum.js'
 import {VerovioToolkit} from 'verovio'
 import {WebMidi} from 'webmidi'
 import {FormControl, InputLabel, MenuItem, Select} from '@mui/material'
-import ExerciseMenu from './ExerciseMenu'
+import ExerciseMenu from './components/ExerciseMenu'
+import PDFReader from "./components/PDFReader";
+import {Document, Page} from "@react-pdf/renderer";
 
 function App() {
   const [score, setScore] = useState('')
+  const [pdfData, setPdfData] = useState('')
   const [toolkit, setToolkit] = useState(null)
   const [midiDevices, setMidiDevices] = useState([])
   const [midiOutputDevices, setMidiOutputDevices] = useState([])
@@ -15,9 +18,14 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [exercise, setExercise] = useState('scales')
 
-  function renderScore(scoreXml) {
-    toolkit.loadData(scoreXml)
-    setScore(toolkit.renderToSVG(1, {}))
+  function renderScore(scoreData, isPdf = false) {
+    if (isPdf) {
+      console.log('Received PDF data...')
+      setPdfData(scoreData)
+    } else {
+      toolkit.loadData(scoreData)
+      setScore(toolkit.renderToSVG(1, {}))
+    }
   }
 
   function onWebMidiEnabled() {
@@ -83,6 +91,7 @@ function App() {
             </div>
             <br/>
             <div dangerouslySetInnerHTML={{__html: score}}></div>
+            {/*<PDFReader pdf={pdfData} />*/}
           </div>
           {/*<ReadingRandomNote renderScore={renderScore} selectedInputDevice={selectedInputDevice} />*/}
           {

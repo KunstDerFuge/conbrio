@@ -2,6 +2,18 @@ import {FormControl, InputLabel, MenuItem, Select} from "@mui/material";
 import React from "react";
 
 export default function KeySelection(props) {
+  const scaleOptions = [
+    {value: 'major', name: 'Major'},
+    {value: 'minor', name: 'Natural Minor'},
+    {value: 'melodic', name: 'Melodic Minor'},
+    {value: 'harmonic', name: 'Harmonic Minor'},
+  ]
+  const chordOptions = [
+    {value: 'major', name: 'Major'},
+    {value: 'minor', name: 'Minor'},
+    {value: 'dominant', name: 'Dominant'},
+  ]
+
   return (
     <>
       <FormControl sx={{m: 1, minWidth: 120}}>
@@ -39,10 +51,16 @@ export default function KeySelection(props) {
           label="Quality"
           onChange={(e) => props.setQuality(e.target.value)}
         >
-          <MenuItem value={'major'}>Major</MenuItem>
-          <MenuItem value={'minor'}>Natural Minor</MenuItem>
-          <MenuItem value={'melodic'}>Melodic Minor</MenuItem>
-          <MenuItem value={'harmonic'}>Harmonic Minor</MenuItem>
+          {
+            props.type === 'scale' ?
+              scaleOptions.map((option) =>
+                <MenuItem key={option.value} value={option.value}>{option.name}</MenuItem>
+              )
+              :
+              chordOptions.map((option) =>
+                <MenuItem key={option.value} value={option.value}>{option.name}</MenuItem>
+              )
+          }
         </Select>
       </FormControl>
     </>

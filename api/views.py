@@ -2,7 +2,7 @@ import base64
 
 from django.http import JsonResponse
 
-from .exercises import Scale, ChordExercise
+from .exercises import Scale, ChordExercise, Arpeggio
 from .models import ExerciseScore, Excerpt
 from .utilities import *
 
@@ -72,6 +72,27 @@ def generate_scale(request) -> JsonResponse:
     print('Next: ', next_name)
 
     return JsonResponse({'xml': _scale.render(), 'next_name': next_name, 'next_url': next_url})
+
+def generate_arpeggio(request) -> JsonResponse:
+    tonic = request.GET.get('tonic', 'ab').replace('s', '#')
+    quality = request.GET.get('quality', Scale.Quality.MAJOR)
+    style = request.GET.get('style', Scale.Style.ABRSM)
+    octaves = int(request.GET.get('octaves', 2))
+    separation = request.GET.get('separation', Scale.Separation.OCTAVE)
+    print(f'Generating {tonic} {quality} {style} scale...')
+
+    _scale = Arpeggio(tonic, quality, octaves=octaves, style=style)
+    npm = _scale.get_notes_per_minute()
+    print('Notes per minute:', npm)
+    # print('ABRSM level:', _scale.get_ABRSM_level())
+    next_name = None
+    next_url = None
+    # next_name = _scale.get_next().get_name()
+    # next_url = _scale.get_next().get_url()
+    print('Next: ', next_name)
+
+    return JsonResponse({'xml': _scale.render(), 'next_name': next_name, 'next_url': next_url})
+
 
 
 def generate_chord_exercise(request) -> JsonResponse:

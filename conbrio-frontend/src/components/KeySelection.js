@@ -52,7 +52,7 @@ export default function KeySelection(props) {
           onChange={(e) => props.setQuality(e.target.value)}
         >
           {
-            props.type === 'scale' ?
+            props.exercise === 'scales' ?
               scaleOptions.map((option) =>
                 <MenuItem key={option.value} value={option.value}>{option.name}</MenuItem>
               )

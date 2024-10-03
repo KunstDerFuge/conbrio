@@ -11,7 +11,7 @@ const router = createBrowserRouter([
     element: <App/>,
   },
   {
-    path: "/practice/*",
+    path: "/practice/:exercise",
     element: <App/>,
   }
 ]);

@@ -22,8 +22,8 @@ import frontend.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/exercise/', api.views.get_random_note),
-    path('api/scale/', api.views.generate_scale),
-    path('api/arpeggio/', api.views.generate_arpeggio),
+    path('api/scales/', api.views.generate_scale),
+    path('api/arpeggios/', api.views.generate_arpeggio),
     path('api/chords/', api.views.generate_chord_exercise),
     path('api/chromatic/', api.views.get_all_chromatic_notes),
     re_path('api/excerpt/*', api.views.get_excerpt),
